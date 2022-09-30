@@ -11,7 +11,12 @@ double** Aloc(int n){
   }
   for (size_t i = 0; i < n; i++) {
     for (size_t j = 0; j < n; j++) {
-      M[i][j] = 0;
+      if(i == j){
+        M[i][j] = 1;
+      }
+      else{
+        M[i][j] = 0;
+      }
     }
   }
   return M;
@@ -62,31 +67,82 @@ double norm(double* vec, int size){
   return std::sqrt(sum);
 }
 
-void Hous(double** A, double** X, double** P, double* x, int n){
-  for (size_t i = 0; i < n; i++) {
-    x[i] = A[i][0];
-  }
-  double alpha;
-  alpha = norm(x, n);
-  x[0] -= alpha;
-  double beta;
-  beta = norm(x, n);
-  for (size_t i = 0; i < n; i++) {
-    x[i] /= beta;
-  }
+void Hous(double** A, double** X, double** Y, double** P, double** Q, double** R, double* x, int n){
+  for (size_t index = 0; index < n ; index++) {
 
-  for (size_t i = 0; i < n; i++) {
-    for (size_t j = 0; j < n; j++) {
-      if(i == j){
-        P[i][j] = 1 - 2 * x[i] * x[j];
+    for (size_t i = index; i < n; i++) {
+      if(i < index){
+        x[i] = 0;
       }
       else{
-        P[i][j] = -2 * x[i] * x[j];
+        x[i] = Y[i][index];
+      }
+    }
+    double alpha = norm(x, n);
+    //alpha = norm(x, n);
+    x[index] -= alpha;
+    double beta = norm(x, n);
+    //beta = norm(x, n);
+    for (size_t i = 0; i < n; i++) {
+      if(beta >= 0.0000000000000001){
+          x[i] /= beta;
+      }
+    }
+    //for (size_t i = 0; i < n; i++) {
+      //std::cout << x[i] << '\n';
+    //}
+    //std::cout << '\n';
+    for (size_t i = 0; i < n; i++) {
+      for (size_t j = 0; j < n; j++) {
+        if(i == j){
+          P[i][j] = 1 - 2 * x[i] * x[j];
+        }
+        else{
+          P[i][j] = -2 * x[i] * x[j];
+        }
+      }
+    }
+    //Print(P, n);
+    //Print(Q, n);
+    //Print(P, n);
+    for (size_t i = index; i < n; i++) {
+      for (size_t j = index; j < n; j++) {
+        double sum = 0;
+        for (size_t k = index; k < n; k++) {
+          sum += P[i][k] * Y[k][j];
+        }
+        R[i][j] = sum;
+      }
+    }
+    for (size_t i = index; i < n; i++) {
+      for (size_t j = 0; j < n; j++) {
+        double sum = 0;
+        for (size_t k = index; k < n; k++) {
+          sum += P[i][k] * X[k][j];
+        }
+        Q[i][j] = sum;
+      }
+    }
+    for (size_t i = 0; i < n; i++) {
+      for (size_t j = 0; j < n; j++) {
+        X[i][j] = Q[i][j];
+        Y[i][j] = R[i][j];
+
       }
     }
   }
-  Print(P, n);
-
+  for (size_t i = 0; i < n; i++) {
+    for (size_t j = i; j < n; j++) {
+      double buf = Q[i][j];
+      Q[i][j] = Q[j][i];
+      Q[j][i] = buf;
+    }
+  }
+  
+  //Print(P, n);
+  Print(Q, n);
+  Print(R, n);
+  //Print(X, n);
 }
 
 int main(int argc, char *argv[]){
@@ -95,24 +151,34 @@ int main(int argc, char *argv[]){
   convert >> n;
   double **A;
   double **X;
+  double **Y;
   double **P;
+  double **Q;
+  double **R;
   double *x;
 
   if (argc == 3) {
     A = Aloc(n);
-    X = Aloc(n);
-    P = Aloc(n);
+    Y = Aloc(n);
     Def(A, n, argv[2]);
+    Def(Y, n, argv[2]);
   }
+  X = Aloc(n);
+  P = Aloc(n);
+  Q = Aloc(n);
+  R = Aloc(n);
   x = aloc(n);
 
-  Hous(A, X, P, x, n);
+  Hous(A, X, Y, P, Q, R, x, n);
 
   Print(A, n);
-  Print(X, n);
+  //Print(X, n);
   Free(A, n);
   Free(X, n);
+  Free(Y, n);
   Free(P, n);
+  Free(Q, n);
+  Free(R, n);
   delete[] x;
   return 0;
 }
