@@ -67,7 +67,7 @@ double norm(double* vec, int size){
   return std::sqrt(sum);
 }
 
-void Hous(double** A, double** X, double** Y, double** P, double** Q, double** R, double* x, int n){
+void Hous(double** A, double** X, double** Y, double** Z, double** P, double** Q, double** R, double* x, int n){
   for (size_t index = 0; index < n ; index++) {
 
     for (size_t i = index; i < n; i++) {
@@ -131,6 +131,36 @@ void Hous(double** A, double** X, double** Y, double** P, double** Q, double** R
       }
     }
   }
+  //std::cout << R[0][0] << '\n';
+  for (size_t j = n; j > 0; j--) {
+    //std::cout << j - 1 << " " << R[j - 1][j - 1] <<'\n';
+    double a = R[j - 1][j - 1];
+    if(a >= 0.0000000000000001){
+      for (size_t l = 0; l < n; l++) {
+        Z[j - 1][l] /= a;
+      }
+    }
+    for (size_t i = j - 1; i > 0; i--) {
+      double b = R[i - 1][j - 1];
+      for (size_t k = 0; k < n; k++) {
+        if(a >= 0.0000000000000001){
+          double c = b / a;
+          Z[i - 1][k] -= Z[i][k] * c;
+        }
+      }
+    }
+  }
+  for (size_t i = 0; i < n; i++) {
+    for (size_t j = 0; j < n; j++) {
+      double sum = 0;
+      for (size_t k = 0; k < n; k++) {
+        sum += Z[i][k] * Q[k][j];
+      }
+      X[i][j] = sum;
+    }
+  }
+  //Print(X, n);
+
   for (size_t i = 0; i < n; i++) {
     for (size_t j = i; j < n; j++) {
       double buf = Q[i][j];
@@ -138,7 +168,7 @@ void Hous(double** A, double** X, double** Y, double** P, double** Q, double** R
       Q[j][i] = buf;
     }
   }
-  
+
   //Print(P, n);
   Print(Q, n);
   Print(R, n);
@@ -152,6 +182,7 @@ int main(int argc, char *argv[]){
   double **A;
   double **X;
   double **Y;
+  double **Z;
   double **P;
   double **Q;
   double **R;
@@ -164,18 +195,20 @@ int main(int argc, char *argv[]){
     Def(Y, n, argv[2]);
   }
   X = Aloc(n);
+  Z = Aloc(n);
   P = Aloc(n);
   Q = Aloc(n);
   R = Aloc(n);
   x = aloc(n);
 
-  Hous(A, X, Y, P, Q, R, x, n);
+  Hous(A, X, Y, Z, P, Q, R, x, n);
 
   Print(A, n);
   //Print(X, n);
   Free(A, n);
   Free(X, n);
   Free(Y, n);
+  Free(Z, n);
   Free(P, n);
   Free(Q, n);
   Free(R, n);
