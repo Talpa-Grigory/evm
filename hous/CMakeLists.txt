@@ -7,6 +7,8 @@ set(SOURCES
     src/def.cpp
     src/print.cpp
     src/hous.cpp
+    src/res.cpp
+    src/f.cpp
 )
 
 add_executable(hous ${SOURCES})

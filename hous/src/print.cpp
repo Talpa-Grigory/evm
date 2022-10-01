@@ -1,8 +1,8 @@
 #include "hous.hpp"
 
-void Print(double** A, int n){
-  for (size_t i = 0; i < n; i++) {
-    for (size_t j = 0; j < n; j++) {
+void Print(double** A, int n, int m){
+  for (size_t i = 0; i < m; i++) {
+    for (size_t j = 0; j < m; j++) {
       std::cout << A[i][j] << ' ';
     }
     std::cout << '\n';
