@@ -3,6 +3,8 @@
 #include <sstream>
 #include <cmath>
 
+#define eps 1e-15
+
 double** Aloc(int n){
   double** M;
   M = new double*[n];
@@ -70,7 +72,7 @@ double norm(double* vec, int size){
 void Hous(double** A, double** X, double** Y, double** Z, double** P, double** Q, double** R, double* x, int n){
   for (size_t index = 0; index < n ; index++) {
 
-    for (size_t i = index; i < n; i++) {
+    for (size_t i = 0; i < n; i++) {
       if(i < index){
         x[i] = 0;
       }
@@ -83,10 +85,11 @@ void Hous(double** A, double** X, double** Y, double** Z, double** P, double** Q
     x[index] -= alpha;
     double beta = norm(x, n);
     //beta = norm(x, n);
-    for (size_t i = 0; i < n; i++) {
-      if(beta >= 0.0000000000000001){
-          x[i] /= beta;
+    for (size_t i = index; i < n; i++) {
+      if (beta >= eps) {
+        x[i] /= beta;
       }
+      //x[i] /= beta;
     }
     //for (size_t i = 0; i < n; i++) {
       //std::cout << x[i] << '\n';
@@ -105,19 +108,19 @@ void Hous(double** A, double** X, double** Y, double** Z, double** P, double** Q
     //Print(P, n);
     //Print(Q, n);
     //Print(P, n);
-    for (size_t i = index; i < n; i++) {
-      for (size_t j = index; j < n; j++) {
+    for (size_t i = 0; i < n; i++) {
+      for (size_t j = 0; j < n; j++) {
         double sum = 0;
-        for (size_t k = index; k < n; k++) {
+        for (size_t k = 0; k < n; k++) {
           sum += P[i][k] * Y[k][j];
         }
         R[i][j] = sum;
       }
     }
-    for (size_t i = index; i < n; i++) {
+    for (size_t i = 0; i < n; i++) {
       for (size_t j = 0; j < n; j++) {
         double sum = 0;
-        for (size_t k = index; k < n; k++) {
+        for (size_t k = 0; k < n; k++) {
           sum += P[i][k] * X[k][j];
         }
         Q[i][j] = sum;
@@ -132,24 +135,22 @@ void Hous(double** A, double** X, double** Y, double** Z, double** P, double** Q
     }
   }
   //std::cout << R[0][0] << '\n';
-  for (size_t j = n; j > 0; j--) {
-    //std::cout << j - 1 << " " << R[j - 1][j - 1] <<'\n';
-    double a = R[j - 1][j - 1];
-    if(a >= 0.0000000000000001){
-      for (size_t l = 0; l < n; l++) {
-        Z[j - 1][l] /= a;
+  for (size_t i = 0; i < n; i++) {
+		double a = R[n - 1 - i][n - 1 - i];
+		for (size_t l = 0; l < n; l++) {
+      if (a >= eps) {
+        Z[n - 1 - i][l] /= a;
       }
-    }
-    for (size_t i = j - 1; i > 0; i--) {
-      double b = R[i - 1][j - 1];
-      for (size_t k = 0; k < n; k++) {
-        if(a >= 0.0000000000000001){
-          double c = b / a;
-          Z[i - 1][k] -= Z[i][k] * c;
-        }
-      }
-    }
-  }
+			//Z[n - 1 - i][l] /= a;
+		}
+		for (size_t j = 0; j < n - 1 - i; j++) {
+			double b = R[j][n - 1 - i];
+			for (size_t k = 0; k < n; k++) {
+				Z[j][k] -= b * Z[n - 1 - i][k];
+			}
+		}
+	 }
+
   for (size_t i = 0; i < n; i++) {
     for (size_t j = 0; j < n; j++) {
       double sum = 0;
@@ -159,7 +160,7 @@ void Hous(double** A, double** X, double** Y, double** Z, double** P, double** Q
       X[i][j] = sum;
     }
   }
-  //Print(X, n);
+  Print(X, n);
 
   for (size_t i = 0; i < n; i++) {
     for (size_t j = i; j < n; j++) {
@@ -170,8 +171,8 @@ void Hous(double** A, double** X, double** Y, double** Z, double** P, double** Q
   }
 
   //Print(P, n);
-  Print(Q, n);
-  Print(R, n);
+  //Print(Q, n);
+  //Print(R, n);
   //Print(X, n);
 }
 
