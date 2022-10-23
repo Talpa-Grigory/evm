@@ -8,9 +8,7 @@ double norm(double* vec, int size){
   return std::sqrt(sum);
 }
 
-void Eigen(double** A, double** Y, double** P, double** R, double* x, int n){
-  std::cout << "P matrix" << '\n';
-  Print(P, n, n);
+void Hessenberg(double** Y, double** P, double** R, double* x, int n){
   for (size_t index = 1; index < n - 1; index++) {
     for (size_t i = 0; i < n; i++) {
       if(i < index){
@@ -28,11 +26,7 @@ void Eigen(double** A, double** Y, double** P, double** R, double* x, int n){
         x[i] /= beta;
       }
     }
-    std::cout << "x_" << index << '\n';
-    for (size_t i = 0; i < n; i++) {
-      std::cout << x[i] << '\n';
-    }
-    std::cout << '\n';
+
     for (size_t i = 0; i < n; i++) {
       for (size_t j = 0; j < n; j++) {
         if(i == j){
@@ -43,8 +37,6 @@ void Eigen(double** A, double** Y, double** P, double** R, double* x, int n){
         }
       }
     }
-    std::cout << "P_" << index << '\n';
-    Print(P, n, n);
 
     for (size_t i = 0; i < n; i++) {
       for (size_t j = 0; j < n; j++) {
@@ -55,9 +47,6 @@ void Eigen(double** A, double** Y, double** P, double** R, double* x, int n){
         R[i][j] = sum;
       }
     }
-    std::cout << "R_1_" << index << '\n';
-    Print(R, n, n);
-
     for (size_t i = 0; i < n; i++) {
       for (size_t j = 0; j < n; j++) {
         Y[i][j] = R[i][j];
@@ -73,15 +62,15 @@ void Eigen(double** A, double** Y, double** P, double** R, double* x, int n){
         R[i][j] = sum;
       }
     }
-
-    std::cout << "R_2_" << index << '\n';
-    Print(R, n, n);
-
     for (size_t i = 0; i < n; i++) {
       for (size_t j = 0; j < n; j++) {
         Y[i][j] = R[i][j];
       }
     }
   }
+}
+
+void Eigen(double** Y, double** P, double** R, double* x, int n){
+  Hessenberg(Y, P, R, x, n);
   Print(R, n, n);
 }

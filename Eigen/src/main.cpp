@@ -26,7 +26,7 @@ int main(int argc, char *argv[]){
   x = aloc(n);
 
   Print(A, n, n);
-  Eigen(A, Y, P, R, x, n);
+  Eigen(Y, P, R, x, n);
 
   Free(A, n);
   Free(Y, n);
