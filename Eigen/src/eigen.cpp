@@ -83,34 +83,69 @@ void Eigen(double** Q, double** Y, double** P, double** R, double* x, int n){
     }
   }
   Print(Y, n, n);
-  for (size_t index = 0; index < n - 1; index++) {
-    if (abs(Y[index + 1][index]) > eps) {
-      double elem_i_i = Y[index][index];
-      double elem_i_j = Y[index + 1][index];
-      double cos = elem_i_i / (std::sqrt(elem_i_i * elem_i_i + elem_i_j * elem_i_j));
-      double sin = -elem_i_j / (std::sqrt(elem_i_i * elem_i_i + elem_i_j * elem_i_j));
-      for (size_t i = 0; i < n; i++) {
-        R[index][i] = cos * Y[index][i] - sin * Y[index + 1][i];
-        R[index + 1][i] = sin * Y[index][i] + cos * Y[index + 1][i];
+  for(size_t l = 1; l <= 40; l += 1){
+    for (size_t k = 0; k < l; k++) {
+      for (size_t index = 0; index < n - 1; index++) {
+        double elem_i_i = Y[index][index];
+        double elem_i_j = Y[index + 1][index];
+        double cos = elem_i_i / (std::sqrt(elem_i_i * elem_i_i + elem_i_j * elem_i_j));
+        double sin = -elem_i_j / (std::sqrt(elem_i_i * elem_i_i + elem_i_j * elem_i_j));
+        for (size_t i = 0; i < n; i++) {
+          R[index][i] = cos * Y[index][i] - sin * Y[index + 1][i];
+          R[index + 1][i] = sin * Y[index][i] + cos * Y[index + 1][i];
+        }
+        for (size_t i = 0; i < n; i++) {
+          Y[index][i] = R[index][i];
+          Y[index + 1][i] = R[index + 1][i];
+        }
+        for (size_t i = 0; i < n; i++) {
+          Q[i][index] = cos * P[i][index] - sin * P[i][index + 1];
+          Q[i][index + 1] = sin * P[i][index] + cos * P[i][index + 1];
+        }
+        for (size_t i = 0; i < n; i++) {
+          P[i][index] = Q[i][index];
+          P[i][index + 1] = Q[i][index + 1];
+        }
       }
       for (size_t i = 0; i < n; i++) {
-        Y[index][i] = R[index][i];
-        Y[index + 1][i] = R[index + 1][i];
+        Q[i][n - 1] *= -1;
       }
+      R[n - 1][n - 1] *= -1;
+
       for (size_t i = 0; i < n; i++) {
-        Q[i][index] = cos * P[i][index] - sin * P[i][index + 1];
-        Q[i][index + 1] = sin * P[i][index] + cos * P[i][index + 1];
+        for (size_t j = 0; j < n; j++) {
+          double sum = 0;
+          for (size_t l = 0; l < n; l++) {
+            sum += R[i][l] * Q[l][j];
+          }
+          Y[i][j] = sum;
+        }
       }
+
       for (size_t i = 0; i < n; i++) {
-        P[i][index] = Q[i][index];
-        P[i][index + 1] = Q[i][index + 1];
+        for (size_t j = 0; j < n; j++) {
+          R[i][j] = Y[i][j];
+        }
+      }
+
+      for (size_t i = 0; i < n; i++) {
+        for (size_t j = 0; j < n; j++) {
+          if(i == j){
+            P[i][j] = 1;
+            Q[i][j] = 1;
+          }
+          else {
+            P[i][j] = 0;
+            Q[i][j] = 0;
+          }
+        }
       }
     }
+    std::cout << "k = " << l << "   ";
+    for (size_t i = 0; i < n; i++) {
+      std::cout << " " << Y[i][i] << " ";
+    }
+    std::cout << '\n';
+    // Print(Y, n, n);
   }
-  for (size_t i = 0; i < n; i++) {
-    Q[i][n - 1] *= -1;
-  }
-  R[n - 1][n - 1] *= -1;
-  Print(Q, n, n);
-  Print(R, n, n);
 }
